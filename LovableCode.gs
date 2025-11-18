@@ -25,6 +25,27 @@ function showLovableSidebar() {
 }
 
 /**
+ * Simple connection test - called from sidebar to verify script is working
+ */
+function simpleTest() {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var name = ss ? ss.getName() : 'No spreadsheet';
+    var sheetCount = ss ? ss.getSheets().length : 0;
+
+    return {
+      success: true,
+      message: 'Connection OK! Spreadsheet: "' + name + '" with ' + sheetCount + ' sheet(s)'
+    };
+  } catch (e) {
+    return {
+      success: false,
+      error: 'Connection test failed: ' + e.toString()
+    };
+  }
+}
+
+/**
  * Test function - run this from Apps Script editor to debug
  * Go to Apps Script, select this function from dropdown, and click Run
  * Then check View > Logs to see the output

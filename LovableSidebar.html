@@ -262,6 +262,13 @@
     </button>
   </div>
 
+  <div style="text-align: center; margin-bottom: 12px;">
+    <button id="testBtn" style="background: #f1f3f4; border: 1px solid #dadce0; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;" onclick="runTest()">
+      Test Connection
+    </button>
+    <div id="testResult" style="font-size: 11px; color: #5f6368; margin-top: 6px;"></div>
+  </div>
+
   <div id="loading" class="loading">
     <div class="spinner"></div>
     <div class="loading-text">Analyzing your sheets...</div>
@@ -314,6 +321,26 @@
 
   <script>
     var timeoutId = null;
+
+    function runTest() {
+      document.getElementById('testResult').textContent = 'Testing...';
+      document.getElementById('testBtn').disabled = true;
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          document.getElementById('testBtn').disabled = false;
+          if (result && result.success) {
+            document.getElementById('testResult').innerHTML = '<span style="color: #34a853;">✓ ' + result.message + '</span>';
+          } else {
+            document.getElementById('testResult').innerHTML = '<span style="color: #ea4335;">✗ ' + (result ? result.error : 'No response') + '</span>';
+          }
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('testBtn').disabled = false;
+          document.getElementById('testResult').innerHTML = '<span style="color: #ea4335;">✗ ' + error.toString() + '</span>';
+        })
+        .simpleTest();
+    }
 
     function generatePrompt() {
       // Show loading state
