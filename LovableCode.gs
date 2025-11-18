@@ -71,7 +71,11 @@ function testAnalyzer() {
  * @return {Object} Analysis result with prompt
  */
 function analyzeWorkbook() {
+  var debugInfo = [];
+
   try {
+    debugInfo.push('Starting analysis...');
+
     var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
 
     if (!spreadsheet) {
@@ -81,6 +85,8 @@ function analyzeWorkbook() {
       };
     }
 
+    debugInfo.push('Got spreadsheet: ' + spreadsheet.getName());
+
     var sheets = spreadsheet.getSheets();
 
     if (!sheets || sheets.length === 0) {
@@ -89,6 +95,8 @@ function analyzeWorkbook() {
         error: 'No sheets found in this workbook.'
       };
     }
+
+    debugInfo.push('Found ' + sheets.length + ' sheets');
 
     var analysis = {
       workbookName: spreadsheet.getName(),
@@ -101,15 +109,25 @@ function analyzeWorkbook() {
     var errors = [];
     for (var i = 0; i < sheets.length; i++) {
       var sheet = sheets[i];
+      var sheetName = sheet.getName();
+      debugInfo.push('Analyzing sheet: ' + sheetName);
+
       try {
         var sheetAnalysis = analyzeSheet(sheet);
         if (sheetAnalysis) {
           analysis.sheets.push(sheetAnalysis);
+          debugInfo.push('  - Success: ' + sheetAnalysis.rowCount + ' rows, ' + sheetAnalysis.columnCount + ' cols');
+        } else {
+          debugInfo.push('  - Skipped (empty or no data)');
         }
       } catch (sheetError) {
-        errors.push('Error analyzing sheet "' + sheet.getName() + '": ' + sheetError.toString());
+        var errMsg = 'Error analyzing sheet "' + sheetName + '": ' + sheetError.toString();
+        errors.push(errMsg);
+        debugInfo.push('  - ERROR: ' + sheetError.toString());
       }
     }
+
+    debugInfo.push('Analyzed ' + analysis.sheets.length + ' sheets with data');
 
     // Check if we have any data to work with
     if (analysis.sheets.length === 0) {
@@ -119,6 +137,7 @@ function analyzeWorkbook() {
       if (errors.length > 0) {
         errorMsg += 'Errors encountered:\n' + errors.join('\n');
       }
+      errorMsg += '\n\nDebug info:\n' + debugInfo.join('\n');
       return {
         success: false,
         error: errorMsg
@@ -126,24 +145,51 @@ function analyzeWorkbook() {
     }
 
     // Detect relationships between sheets
-    analysis.relationships = detectRelationships(analysis.sheets);
+    try {
+      debugInfo.push('Detecting relationships...');
+      analysis.relationships = detectRelationships(analysis.sheets);
+      debugInfo.push('Found ' + analysis.relationships.length + ' relationships');
+    } catch (relError) {
+      debugInfo.push('Relationship detection failed: ' + relError.toString());
+      analysis.relationships = [];
+    }
 
     // Generate summary statistics
-    analysis.summary = generateSummary(analysis.sheets);
+    try {
+      debugInfo.push('Generating summary...');
+      analysis.summary = generateSummary(analysis.sheets);
+      debugInfo.push('Summary complete');
+    } catch (sumError) {
+      debugInfo.push('Summary generation failed: ' + sumError.toString());
+      analysis.summary = { totalSheets: analysis.sheets.length, totalRows: 0, totalColumns: 0, totalFormulaColumns: 0 };
+    }
 
     // Generate the Lovable prompt
-    var prompt = generateLovablePrompt(analysis);
+    var prompt = '';
+    try {
+      debugInfo.push('Generating prompt...');
+      prompt = generateLovablePrompt(analysis);
+      debugInfo.push('Prompt generated: ' + prompt.length + ' characters');
+    } catch (promptError) {
+      return {
+        success: false,
+        error: 'Failed to generate prompt: ' + promptError.toString() + '\n\nDebug info:\n' + debugInfo.join('\n')
+      };
+    }
 
+    // Return simplified result (avoid serialization issues with large objects)
     return {
       success: true,
       prompt: prompt,
-      analysis: analysis
+      analysis: {
+        summary: analysis.summary
+      }
     };
 
   } catch (error) {
     return {
       success: false,
-      error: 'Analysis failed: ' + error.toString() + '\n\nPlease check that your sheet has data and try again.'
+      error: 'Analysis failed: ' + error.toString() + '\n\nDebug info:\n' + debugInfo.join('\n')
     };
   }
 }
