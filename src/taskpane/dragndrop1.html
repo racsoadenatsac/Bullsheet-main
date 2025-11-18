@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.33.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.1/xlsx.full.min.js"></script>
+
+<html lang="en">
+<head>
+    <title>A File Upload Demo</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        .header {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            background-color: #0f9d58;
+            color: white;
+            text-align: center;
+        }
+        .aligner {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: #0f9d58;
+            color: white;
+            text-align: center;
+        }
+        .aligner {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        #drop {
+            height: 200px;
+            width: 200px;
+            border-radius: 100px;
+            color: #fff;
+            background-color: #0f9d58;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .aligner {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        #drop {
+            height: 200px;
+            width: 200px;
+            border-radius: 100px;
+            color: #fff;
+            background-color: #0f9d58;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .loader,
+        .loader:before,
+        .loader:after {
+            border-radius: 50%;
+            width: 2.5em;
+            height: 2.5em;
+            -webkit-animation-fill-mode: both;
+            animation-fill-mode: both;
+            -webkit-animation: load7 1.8s infinite ease-in-out;
+            animation: load7 1.8s infinite ease-in-out;
+        }
+        .loader {
+            color: green;
+            font-size: 5px;
+            margin: 20px auto;
+            position: relative;
+            text-indent: -9999em;
+            -webkit-transform: translateZ(0);
+            -ms-transform: translateZ(0);
+            transform: translateZ(0);
+            -webkit-animation-delay: -0.16s;
+            animation-delay: -0.16s;
+        }
+        .loader:before,
+        .loader:after {
+            content: '';
+            position: absolute;
+            top: 0;
+        }
+        .loader:before {
+            left: -3.5em;
+            -webkit-animation-delay: -0.32s;
+            animation-delay: -0.32s;
+        }
+        .loader:after {
+            left: 3.5em;
+        }
+        @-webkit-keyframes load7 {
+            0%,
+            80%,
+            100% {
+                box-shadow: 0 2.5em 0 -1.3em;
+            }
+            40% {
+                box-shadow: 0 2.5em 0 0;
+            }
+        }
+        @keyframes load7 {
+            0%,
+            80%,
+            100% {
+                box-shadow: 0 2.5em 0 -1.3em;
+            }
+            40% {
+                box-shadow: 0 2.5em 0 0;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <svg width="1000" height="60" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="0" width="500" height="60" fill="#0f9d58" />
+        <foreignobject x="5" y="0" width="500" height="60">
+            <body xmlns="http://www.w3.org/1999/xhtml">
+
+
+
+
+            <div><img src="https://static.wixstatic.com/media/ec5108_4f9937103c794147b30ec573684fe5bb~mv2.png/v1/fill/w_220,h_231,al_c,usm_0.66_1.00_0.01/sparksheet-iso_1.png" alt="Sparksheet Inc" style="float:left;width:60px;height:60px;"></div>
+
+            </body>
+        </foreignobject>
+    </svg>
+
+
+
+</div>
+
+<div class="aligner">
+    <center><h3>Upload CSV Data.</h3></center>
+    <div id="drop">&nbsp;&nbsp;&nbsp; Drop Data Files &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Here.</div>
+    <div id="list">
+        <p>Wait for your upload to be shown on the list below: </p>
+    </div>
+</div>
+
+<script async type="text/javascript">
+    //var spreadsheetid = "1uw1y7whqof3hbklskp8ljwzorlemd-kynfdl0xl79qo"
+    var urlParams = new URLSearchParams(window.location.search);
+    //var current_time_stamp = urlParams.get('current_run_timestamp');
+    console.log("Current run = " + current_time_stamp);
+
+
+    //const Bucket = globalbucket;
+    const credentialsCognito = new AWS.CognitoIdentityCredentials({ IdentityPoolId: 'us-west-2:4a1972cb-1fbf-4fac-a59f-206281ef0055' })
+    const regionCognito = 'us-west-2';
+
+    AWS.config = new AWS.Config({ region: regionCognito, credentials: credentialsCognito })
+
+    //const s3 = new AWS.S3({
+    apiVersion: '2006-03-01',
+    params: globalbucket
+    });
+
+    var paramsSpreadsheetID = {
+        Bucket: "sparksheet",
+        Key: spreadsheetid + "." + "id"
+    };
+
+
+    var paramsTimestamp = {
+        Bucket: "sparksheet",
+        Key: spreadsheetid + "/current_run_timestamp.csv",
+    };
+
+    /*
+    s3.putObject(paramsSpreadsheetID, function (err, data) {
+    if (err) console.log("Failed uploading spreadsheetid.train"); // an error occurred
+    else {
+        console.log("Uploading spreadsheetid.train");
+    }
+    });
+     */
+
+
+    function cancel(e) {
+      e.preventDefault();
+      return false;
+    }
+
+    function handleDrop(e){
+
+
+
+
+      e.preventDefault();
+      var dt    = e.dataTransfer;
+      var files = dt.files;
+      for (var i=0; i<files.length; i++) {
+        var file = files[i];
+        var reader = new FileReader();
+        reader.addEventListener('loadend', function(e){
+
+
+    var progressNode = document.createElement('div')
+
+              progressNode.innerHTML = '<div class="loader" id="test">Loading...</div>';
+
+
+    s3.putObject({
+        Bucket: globalbucket,
+      //  Key: spreadsheetid + "/" + current_time_stamp + "/data/" + file.name + ".data",
+        //ACL: 'public-read',
+        Body: new Blob([reader.result], {type: file.type})
+        }, function (err) {
+        if (err) { console.log("This Error: " + err); }
+        else {
+            console.log("File lines: " + file.size)
+            var uploadedFileNode = document.createElement('div');
+            console.log("//s3.amazonaws.com/sparksheet/" + spreadsheetid + "/" + current_time_stamp + "/" + file.name);
+        element.parentNode.removeChild(element);
+        // sleep time expects milliseconds
+        function sleep (time) {
+            return new Promise((resolve) => setTimeout(resolve, time));
+        }
+
+        // Usage!
+            sleep(2000).then(() => {
+                window.close();
+            });
+        }
+    })
+    .then(function(){
+    var uploadedFileNode = document.createElement('div');
+    uploadedFileNode.innerHTML = '<a href=a href="//s3.amazonaws.com/sparksheet/'+ current_time_stamp + "/data/" + file.name +'">'+ file.name + ".data" + '</a>';
+    // sleep time expects milliseconds
+    function sleep (time) {
+        return new Promise((resolve) => setTimeout(resolve, time));
+    }
+
+    // Usage!
+    sleep(2000).then(() => {
+        window.close();
+    });
+
+    });
+
+
+
+    });
+    reader.readAsArrayBuffer(file);
+    }
+    return false;
+    }
+
+
+
+
+
+
+    // Tells the browser that we *can* drop on this target
+    drop.addEventListener('dragenter', cancel);
+    drop.addEventListener('dragover', cancel);
+    drop.addEventListener('drop', handleDrop);
+
+
+
+</script>
+
+</body>
+</html>
+
+
+

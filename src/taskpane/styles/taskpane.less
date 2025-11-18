@@ -1,0 +1,175 @@
+
+@import "color";
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+@import url('https://rsms.me/inter/inter.css');
+html { 
+  font-family: 'Inter', sans-serif; 
+}
+@supports (font-variation-settings: normal) {
+  html { 
+    font-family: 'Inter var', sans-serif; 
+  }
+}
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+@mode: 'dark';
+
+.theme (@mode) when (@mode = "dark") {
+  color: red;
+}
+.theme (@mode) when (@mode = "light") {
+  color: blue;
+}
+
+@header_height: 70px;
+@footer_height: 65px;
+
+#container {
+  height: 100%;
+  width: 100%;
+}
+
+.header {
+  .debug {
+    display: flex;
+    align-items: center;
+  }
+  img {
+    margin: 10px 18px;
+    height: 50px;
+    width: 63.52px;
+  }
+  width: 100%;
+  height: @header_height;
+  text-align: left;
+  display: flex;
+  align-items: center;
+}
+
+.center {
+  background-color: @backgroun-color;
+  height: calc(100% - @header_height - @footer_height);
+  display: flex;
+  flex-direction: column;
+  padding: 0 18px 18px 18px;
+  font-size: 14px;
+  line-height: 22px;
+  overflow-y: scroll;
+
+  .title {
+    margin: 8px 0;
+    font-size: 20px;
+    line-height: 30px;
+    font-weight: bold;
+    color: #1A202E;
+  }
+
+  .message {
+    margin: 8px 0;
+    span {
+      text-decoration-line: underline;
+    }
+  }
+
+  .inner {
+    flex-grow: 1;
+    display: flex;
+    padding: 12px;
+    flex-direction: column;
+    background-color: @white;
+
+    .dropzone {
+      flex-grow: 1;
+      margin: 12px 0;
+      border-radius: 10px;
+      color: @drop-color;
+      background-color: @white;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed @drop-color;
+      // filter: blur(4px); // TODO
+      svg {
+        margin: 20px;
+        fill: @drop-color;
+        min-width: 30px;
+        min-height: 30px;
+      }
+      div {
+        text-align: center;
+        margin: 20px 20px 20px 0;
+      }
+    }
+  }
+
+  .file-upload-progress-bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .ms-ProgressIndicator {
+      flex-grow: 1;
+    }
+    .ms-ProgressIndicator-progressBar {
+      background-color: @green;
+    }
+    .file-copy {
+      margin-right: 6px;
+    }
+    .download-done {
+      margin-left: 6px;
+      color: @green;
+    }
+  }
+
+  .CircularProgressbar {
+    .CircularProgressbar-path {
+      stroke: @green;
+    }
+    .CircularProgressbar-trail {
+      stroke: @light-green;
+    }
+  }
+  .progress-bar-title {
+    font-size: 30px;
+    font-weight: 700;
+    color: @green;
+  }
+}
+
+.footer {
+  width: 100%;
+  height: @footer_height;
+  .how-to {
+    display: flex;
+    align-items: center;
+    margin: 2px 0;
+    font: normal 500 0.875rem/22px Inter;
+    color: @light-dark;
+    img {
+      width:24px;
+      height:24px;
+      margin: 0 4px;
+    }
+  }
+  .copyright {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 16px;
+    color: @fg-light;
+    a {
+      color: @link;
+    }
+  }
+}
