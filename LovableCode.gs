@@ -25,6 +25,27 @@ function showLovableSidebar() {
 }
 
 /**
+ * Test function - run this from Apps Script editor to debug
+ * Go to Apps Script, select this function from dropdown, and click Run
+ * Then check View > Logs to see the output
+ */
+function testAnalyzer() {
+  var result = analyzeWorkbook();
+  Logger.log('Result: ' + JSON.stringify(result, null, 2));
+
+  if (result && result.success) {
+    Logger.log('SUCCESS! Found ' + result.analysis.sheets.length + ' sheets');
+    Logger.log('Prompt length: ' + result.prompt.length + ' characters');
+  } else if (result) {
+    Logger.log('ERROR: ' + result.error);
+  } else {
+    Logger.log('ERROR: No result returned');
+  }
+
+  return result;
+}
+
+/**
  * Main function to analyze entire workbook and generate Lovable prompt
  * @return {Object} Analysis result with prompt
  */
