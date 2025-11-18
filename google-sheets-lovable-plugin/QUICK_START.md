@@ -2,6 +2,17 @@
 
 Get started with the Google Sheets to Lovable Prompt Generator in 5 minutes!
 
+## 🎯 Key Principle: 100% Dynamic
+
+**This plugin makes ZERO assumptions about your data.** It analyzes whatever structure YOU have in YOUR sheets:
+- Your column names
+- Your data types
+- Your formulas
+- Your sheet names
+- Your relationships
+
+Whether you're tracking customers, game scores, research data, budgets, recipes, or anything else - it adapts to YOUR structure.
+
 ## ⚡ 5-Minute Setup
 
 ### 1. Install the Add-on (2 minutes)
@@ -177,42 +188,44 @@ The analyzer will detect: "Orders references Customers"
 
 ---
 
-## 💡 Common Use Cases
+## 💡 How It Works with ANY Spreadsheet
 
-### 1. Simple Data Tracker
+### Pattern 1: Simple Single-Sheet Data
 
-**Your Sheet:**
-- Single sheet with data
+**If Your Sheet Has:**
+- One tab with rows of data
 - No formulas
 
 **You Get:**
-- Simple CRUD app
-- Table view with search
+- Simple CRUD app for that entity
+- Table view with search/filter
 - Add/edit/delete forms
 
-### 2. Multi-Table Application
+### Pattern 2: Multi-Sheet with Relationships
 
-**Your Sheets:**
-- Customers, Orders, Products
-- ID columns for relationships
-- Some calculated fields
-
-**You Get:**
-- Complete app with related data
-- Dashboard with metrics
-- Linked data views
-
-### 3. Business Logic App
-
-**Your Sheets:**
-- Data with many formulas
-- Conditional calculations
-- Status indicators
+**If Your Sheets Have:**
+- Multiple tabs (whatever they're called)
+- Columns that reference each other (e.g., matching ID columns)
+- Maybe some VLOOKUP formulas
 
 **You Get:**
-- App with auto-calculations
-- Business rules enforcement
-- Dynamic status updates
+- Multi-entity app with linked data
+- Dashboard showing data from all sheets
+- Navigation between related records
+
+### Pattern 3: Formula-Heavy Logic
+
+**If Your Sheets Have:**
+- Calculated columns (formulas in cells)
+- Conditional logic (IF statements)
+- Aggregations (SUM, COUNT, etc.)
+
+**You Get:**
+- App with automatic calculations
+- Business rules that match your formulas
+- Dynamic field updates
+
+**Remember:** The plugin discovers YOUR patterns, not predefined templates.
 
 ---
 

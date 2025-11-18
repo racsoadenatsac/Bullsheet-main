@@ -2,16 +2,33 @@
 
 A Google Apps Script add-on that analyzes your Google Sheets structure and automatically generates comprehensive prompts for [Lovable.dev](https://lovable.dev) to build web applications.
 
+---
+
+## ⚠️ 100% Dynamic - Zero Assumptions
+
+**This plugin analyzes YOUR spreadsheet, whatever it contains:**
+- ✅ Works with ANY sheet structure (budgets, inventories, game data, research, etc.)
+- ✅ Uses YOUR column names, YOUR sheet names, YOUR data types
+- ✅ Discovers YOUR formulas and relationships
+- ✅ Makes NO assumptions about entity types or structure
+- ✅ No predefined templates - adapts completely to YOUR data
+
+**Examples in docs show "Customers" and "Orders"?** That's just ONE possible scenario. Your output will reflect YOUR actual spreadsheet structure.
+
+---
+
 ## 🎯 Overview
 
-This plugin analyzes your entire Google Sheets workbook (all sheets/tabs) and generates a detailed, structured prompt that includes:
+This plugin is **completely dynamic** - it analyzes **YOUR** Google Sheets workbook (whatever structure you have) and generates a detailed, structured prompt that includes:
 
-- **Data models** from sheet structure and column types
-- **Relationships** between different sheets/tables
-- **Business logic** extracted from formulas
-- **CRUD operations** specifications
-- **UI component** recommendations
-- **Feature requirements** based on your data
+- **Data models** discovered from YOUR actual sheet structure and column types
+- **Relationships** detected between YOUR different sheets/tables
+- **Business logic** extracted from YOUR formulas
+- **CRUD operations** specifications tailored to YOUR data
+- **UI component** recommendations based on YOUR data types
+- **Feature requirements** derived from YOUR specific spreadsheet
+
+**No assumptions are made** - it works with ANY spreadsheet: budgets, inventories, research data, game stats, project trackers, or any custom structure you create.
 
 ## 📋 Features
 
@@ -91,36 +108,51 @@ This plugin analyzes your entire Google Sheets workbook (all sheets/tabs) and ge
 - VLOOKUP/XLOOKUP dependencies
 - Cross-sheet formula references
 
-#### Business Context
-- Inferred purpose from sheet names
-- Entity types (customers, orders, products, etc.)
-- Domain logic patterns
+#### Business Context (Optional Inference)
+- Attempts to infer purpose from YOUR sheet names
+- Detects entity types IF naming patterns suggest them (e.g., if you name something "Customers")
+- Otherwise, describes as generic "Data Management" entities
+- All inference is based solely on YOUR actual data
 
 ## 💡 Example Use Cases
 
+**The plugin adapts to ANY spreadsheet structure. Here are just a few examples:**
+
 ### 1. Customer Management System
-**Input:** Google Sheet with tabs for Customers, Orders, Products
-**Output:** Lovable prompt for a CRM with customer profiles, order tracking, and product catalog
+**Your Sheet:** Tabs for Customers, Orders, Products
+**Generated Prompt:** CRM with customer profiles, order tracking, and product catalog
 
 ### 2. Inventory Tracker
-**Input:** Sheet with Products, Stock Levels, Suppliers, and formula-based reorder calculations
-**Output:** Lovable prompt for inventory management app with automated reorder alerts
+**Your Sheet:** Products, Stock Levels, Suppliers, and formula-based reorder calculations
+**Generated Prompt:** Inventory management app with automated reorder alerts
 
-### 3. Project Management
-**Input:** Sheets for Projects, Tasks, Team Members with status tracking formulas
-**Output:** Lovable prompt for project dashboard with task assignments and progress tracking
+### 3. Budget Tracker
+**Your Sheet:** Monthly expenses, income, categories with SUM formulas
+**Generated Prompt:** Personal finance app with expense tracking and budget visualization
 
-### 4. Sales Dashboard
-**Input:** Sales data with calculated commissions, targets, and performance metrics
-**Output:** Lovable prompt for sales analytics app with charts and KPI tracking
+### 4. Recipe Manager
+**Your Sheet:** Recipes, Ingredients, Nutritional info with calculation formulas
+**Generated Prompt:** Recipe app with ingredient lists and nutrition calculator
+
+### 5. Game Stats Tracker
+**Your Sheet:** Players, Matches, Scores with ranking formulas
+**Generated Prompt:** Gaming leaderboard with player profiles and match history
+
+### 6. Research Data
+**Your Sheet:** Experiments, Observations, Calculations with statistical formulas
+**Generated Prompt:** Research data management app with analysis tools
+
+**The point:** Whatever YOU have in your sheets becomes the app structure. No predefined templates.
 
 ## 📊 Sample Output Structure
+
+**Note:** This is just ONE example based on a hypothetical customer database. Your output will be completely different and based on YOUR actual spreadsheet structure.
 
 ```markdown
 # App Requirements Based on Google Sheets Analysis
 
-**Source:** My Customer Database
-**Generated:** 2025-01-18T...
+**Source:** [YOUR WORKBOOK NAME]
+**Generated:** [TIMESTAMP]
 
 ## Executive Summary
 Create a web application based on the following Google Sheets structure:
