@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+      padding: 20px;
+      background-color: #f8f9fa;
+    }
+
+    .header {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .header h2 {
+      color: #1a73e8;
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: #5f6368;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .button-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .generate-btn {
+      background-color: #1a73e8;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 4px;
+      cursor: pointer;
+      box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+      transition: all 0.2s;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .generate-btn:hover {
+      background-color: #1765cc;
+      box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+    }
+
+    .generate-btn:active {
+      background-color: #1557b0;
+    }
+
+    .generate-btn:disabled {
+      background-color: #dadce0;
+      color: #80868b;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #1a73e8;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: #5f6368;
+      font-size: 13px;
+    }
+
+    .output-container {
+      display: none;
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+    }
+
+    .output-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .output-title {
+      color: #202124;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .copy-btn {
+      background-color: #fff;
+      color: #1a73e8;
+      border: 1px solid #dadce0;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      background-color: #f8f9fa;
+      border-color: #1a73e8;
+    }
+
+    .copy-btn:active {
+      background-color: #e8f0fe;
+    }
+
+    .copy-btn.copied {
+      background-color: #34a853;
+      color: white;
+      border-color: #34a853;
+    }
+
+    #promptOutput {
+      width: 100%;
+      min-height: 400px;
+      max-height: 600px;
+      padding: 12px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      resize: vertical;
+      background-color: #f8f9fa;
+      color: #202124;
+    }
+
+    #promptOutput:focus {
+      outline: none;
+      border-color: #1a73e8;
+      background-color: white;
+    }
+
+    .error-container {
+      display: none;
+      background-color: #fce8e6;
+      border: 1px solid #ea4335;
+      border-radius: 4px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .error-title {
+      color: #d93025;
+      font-weight: 500;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .error-message {
+      color: #5f6368;
+      font-size: 12px;
+    }
+
+    .info-box {
+      background-color: #e8f0fe;
+      border-left: 4px solid #1a73e8;
+      padding: 12px;
+      margin-top: 20px;
+      border-radius: 4px;
+    }
+
+    .info-title {
+      color: #1a73e8;
+      font-weight: 500;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .info-content {
+      color: #5f6368;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .info-content ul {
+      margin-left: 16px;
+      margin-top: 8px;
+    }
+
+    .info-content li {
+      margin-bottom: 4px;
+    }
+
+    .stats {
+      display: none;
+      background-color: #fff;
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 12px;
+      border: 1px solid #dadce0;
+    }
+
+    .stats-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #202124;
+      margin-bottom: 8px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .stat-item {
+      font-size: 12px;
+      color: #5f6368;
+    }
+
+    .stat-value {
+      font-weight: 500;
+      color: #1a73e8;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>🚀 Lovable Prompt Generator</h2>
+    <p>Analyze your Google Sheets and generate a comprehensive prompt for Lovable.dev</p>
+  </div>
+
+  <div class="button-container">
+    <button id="generateBtn" class="generate-btn" onclick="generatePrompt()">
+      Analyze Sheets & Generate Prompt
+    </button>
+  </div>
+
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Analyzing your sheets...</div>
+  </div>
+
+  <div id="stats" class="stats">
+    <div class="stats-title">Analysis Summary</div>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <span class="stat-value" id="statSheets">0</span> sheets
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="statRows">0</span> total rows
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="statColumns">0</span> columns
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="statFormulas">0</span> formulas
+      </div>
+    </div>
+  </div>
+
+  <div id="outputContainer" class="output-container">
+    <div class="output-header">
+      <span class="output-title">Generated Lovable Prompt</span>
+      <button id="copyBtn" class="copy-btn" onclick="copyToClipboard()">Copy</button>
+    </div>
+    <textarea id="promptOutput" readonly></textarea>
+  </div>
+
+  <div id="errorContainer" class="error-container">
+    <div class="error-title">Error</div>
+    <div class="error-message" id="errorMessage"></div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-title">ℹ️ How it works</div>
+    <div class="info-content">
+      This tool analyzes your entire Google Sheets workbook and generates a detailed prompt for Lovable.dev that includes:
+      <ul>
+        <li>Data structure and types from all sheets</li>
+        <li>Relationships between different tables</li>
+        <li>Business logic from formulas</li>
+        <li>Recommended UI components and features</li>
+      </ul>
+      Click the button above to analyze all sheets in this workbook.
+    </div>
+  </div>
+
+  <script>
+    function generatePrompt() {
+      // Show loading state
+      document.getElementById('generateBtn').disabled = true;
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('outputContainer').style.display = 'none';
+      document.getElementById('errorContainer').style.display = 'none';
+      document.getElementById('stats').style.display = 'none';
+
+      // Call Apps Script function
+      google.script.run
+        .withSuccessHandler(onSuccess)
+        .withFailureHandler(onError)
+        .analyzeWorkbook();
+    }
+
+    function onSuccess(result) {
+      // Hide loading
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('generateBtn').disabled = false;
+
+      if (result.success) {
+        // Show stats
+        if (result.analysis && result.analysis.summary) {
+          document.getElementById('statSheets').textContent = result.analysis.summary.totalSheets || 0;
+          document.getElementById('statRows').textContent = result.analysis.summary.totalRows || 0;
+          document.getElementById('statColumns').textContent = result.analysis.summary.totalColumns || 0;
+          document.getElementById('statFormulas').textContent = result.analysis.summary.totalFormulaColumns || 0;
+          document.getElementById('stats').style.display = 'block';
+        }
+
+        // Show output
+        document.getElementById('promptOutput').value = result.prompt;
+        document.getElementById('outputContainer').style.display = 'block';
+
+        // Scroll to output
+        document.getElementById('outputContainer').scrollIntoView({ behavior: 'smooth' });
+      } else {
+        onError(result.error || 'Unknown error occurred');
+      }
+    }
+
+    function onError(error) {
+      // Hide loading
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('generateBtn').disabled = false;
+
+      // Show error
+      document.getElementById('errorMessage').textContent = error.toString();
+      document.getElementById('errorContainer').style.display = 'block';
+    }
+
+    function copyToClipboard() {
+      var promptText = document.getElementById('promptOutput');
+      promptText.select();
+      document.execCommand('copy');
+
+      // Show feedback
+      var copyBtn = document.getElementById('copyBtn');
+      copyBtn.textContent = '✓ Copied!';
+      copyBtn.classList.add('copied');
+
+      // Reset after 2 seconds
+      setTimeout(function() {
+        copyBtn.textContent = 'Copy';
+        copyBtn.classList.remove('copied');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
