@@ -183,6 +183,8 @@
     .error-message {
       color: #5f6368;
       font-size: 12px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
 
     .info-box {
@@ -311,6 +313,8 @@
   </div>
 
   <script>
+    var timeoutId = null;
+
     function generatePrompt() {
       // Show loading state
       document.getElementById('generateBtn').disabled = true;
@@ -318,6 +322,11 @@
       document.getElementById('outputContainer').style.display = 'none';
       document.getElementById('errorContainer').style.display = 'none';
       document.getElementById('stats').style.display = 'none';
+
+      // Set a timeout in case the script hangs
+      timeoutId = setTimeout(function() {
+        onError('Request timed out. The analysis is taking too long. Try with a smaller sheet or check for issues in your data.');
+      }, 60000); // 60 second timeout
 
       // Call Apps Script function
       google.script.run
@@ -327,9 +336,21 @@
     }
 
     function onSuccess(result) {
+      // Clear timeout
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+
       // Hide loading
       document.getElementById('loading').style.display = 'none';
       document.getElementById('generateBtn').disabled = false;
+
+      // Check if result is valid
+      if (!result) {
+        onError('No response received from the analyzer. Please try again.');
+        return;
+      }
 
       if (result.success) {
         // Show stats
@@ -342,23 +363,30 @@
         }
 
         // Show output
-        document.getElementById('promptOutput').value = result.prompt;
+        document.getElementById('promptOutput').value = result.prompt || 'No prompt generated';
         document.getElementById('outputContainer').style.display = 'block';
 
         // Scroll to output
         document.getElementById('outputContainer').scrollIntoView({ behavior: 'smooth' });
       } else {
-        onError(result.error || 'Unknown error occurred');
+        onError(result.error || 'Unknown error occurred. Please check your sheet has data.');
       }
     }
 
     function onError(error) {
+      // Clear timeout
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+
       // Hide loading
       document.getElementById('loading').style.display = 'none';
       document.getElementById('generateBtn').disabled = false;
 
-      // Show error
-      document.getElementById('errorMessage').textContent = error.toString();
+      // Format error message (convert newlines to <br> for display)
+      var errorMsg = error.toString().replace(/\n/g, '<br>');
+      document.getElementById('errorMessage').innerHTML = errorMsg;
       document.getElementById('errorContainer').style.display = 'block';
     }
 

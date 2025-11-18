@@ -3,6 +3,11 @@
  * Analyzes Google Sheets structure and generates comprehensive prompts for Lovable.dev
  */
 
+/* What should the add-on do after it is installed */
+function onInstall() {
+  onOpen();
+}
+
 /* Add menu when spreadsheet opens */
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
@@ -26,7 +31,22 @@ function showLovableSidebar() {
 function analyzeWorkbook() {
   try {
     var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+
+    if (!spreadsheet) {
+      return {
+        success: false,
+        error: 'No active spreadsheet found. Please open a Google Sheet first.'
+      };
+    }
+
     var sheets = spreadsheet.getSheets();
+
+    if (!sheets || sheets.length === 0) {
+      return {
+        success: false,
+        error: 'No sheets found in this workbook.'
+      };
+    }
 
     var analysis = {
       workbookName: spreadsheet.getName(),
@@ -36,12 +56,31 @@ function analyzeWorkbook() {
     };
 
     // Analyze each sheet
+    var errors = [];
     for (var i = 0; i < sheets.length; i++) {
       var sheet = sheets[i];
-      var sheetAnalysis = analyzeSheet(sheet);
-      if (sheetAnalysis) {
-        analysis.sheets.push(sheetAnalysis);
+      try {
+        var sheetAnalysis = analyzeSheet(sheet);
+        if (sheetAnalysis) {
+          analysis.sheets.push(sheetAnalysis);
+        }
+      } catch (sheetError) {
+        errors.push('Error analyzing sheet "' + sheet.getName() + '": ' + sheetError.toString());
       }
+    }
+
+    // Check if we have any data to work with
+    if (analysis.sheets.length === 0) {
+      var errorMsg = 'No data found to analyze. Please ensure your sheets have:\n';
+      errorMsg += '- Headers in row 1\n';
+      errorMsg += '- At least one row of data below the headers\n\n';
+      if (errors.length > 0) {
+        errorMsg += 'Errors encountered:\n' + errors.join('\n');
+      }
+      return {
+        success: false,
+        error: errorMsg
+      };
     }
 
     // Detect relationships between sheets
@@ -62,7 +101,7 @@ function analyzeWorkbook() {
   } catch (error) {
     return {
       success: false,
-      error: error.toString()
+      error: 'Analysis failed: ' + error.toString() + '\n\nPlease check that your sheet has data and try again.'
     };
   }
 }
@@ -81,6 +120,11 @@ function analyzeSheet(sheet) {
     return null;
   }
 
+  // Skip sheets with only headers (need at least 1 data row)
+  if (lastRow < 2) {
+    return null;
+  }
+
   var sheetName = sheet.getName();
   var range = sheet.getRange(1, 1, lastRow, lastCol);
   var values = range.getValues();
@@ -88,6 +132,15 @@ function analyzeSheet(sheet) {
 
   // Extract headers (row 1)
   var headers = values[0];
+
+  // Check if headers are valid (at least one non-empty header)
+  var hasValidHeaders = headers.some(function(h) {
+    return h !== null && h !== '';
+  });
+
+  if (!hasValidHeaders) {
+    return null;
+  }
 
   // Analyze columns
   var columns = [];
